@@ -1,0 +1,33 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model WeighIn {
+  id                 String   @id @default(cuid())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now())
+  date               DateTime @unique
+  weight             Decimal
+  weightProgress     Decimal
+  weightTotalChange  Decimal
+  weightToGoal       Decimal
+  bodyFatPercentage  Decimal?
+  bodyFatProgress    Decimal?
+  bodyFatTotalChange Decimal?
+  previousWeighIn    String?
+}
+
+model Goal {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  weight    Decimal
+}
