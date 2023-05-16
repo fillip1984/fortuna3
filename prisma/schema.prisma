@@ -22,7 +22,7 @@ model WeighIn {
   bodyFatPercentage  Decimal?
   bodyFatProgress    Decimal?
   bodyFatTotalChange Decimal?
-  previousWeighIn    String?
+  previousWeighInId  String?
 }
 
 model Goal {
