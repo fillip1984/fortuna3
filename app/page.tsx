@@ -5,6 +5,7 @@ import { IoScaleOutline } from "react-icons/io5";
 import { MdTrendingDown, MdTrendingFlat, MdTrendingUp } from "react-icons/md";
 import { GiHearts, GiNestedHearts } from "react-icons/gi";
 import { BsHeartPulseFill } from "react-icons/bs";
+import { BloodPressureCategory } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,74 @@ async function getGoal() {
   return goal;
 }
 
+const determineWeighInTrend = (weight: number) => {
+  if (weight === 0) {
+    return <MdTrendingFlat />;
+  } else if (weight > 0) {
+    return <MdTrendingUp />;
+  } else if (weight < 0) {
+    return <MdTrendingDown />;
+  } else {
+    throw Error("Unable to determine trend for: " + weight);
+  }
+};
+
+const determineBloodPressureCategory = (
+  bloodPressureCategory: BloodPressureCategory
+) => {
+  if (bloodPressureCategory === "NORMAL") {
+    return (
+      <>
+        <span className="text-xl text-green-600">Normal</span>
+        <span className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="h-4 w-4 rounded-full bg-green-600"></div>
+        </span>
+      </>
+    );
+  } else if (bloodPressureCategory === "ELEVATED") {
+    return (
+      <>
+        <span className="text-xl text-yellow-300">Elevated</span>
+        <span className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="h-4 w-4 rounded-full bg-yellow-300"></div>
+        </span>
+      </>
+    );
+  } else if (bloodPressureCategory === "HYPERTENSION_STAGE_1") {
+    return (
+      <>
+        <span className="text-xl text-orange-400">Hypertension Stage 1</span>
+        <span className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="h-4 w-4 rounded-full bg-orange-400"></div>
+        </span>
+      </>
+    );
+  } else if (bloodPressureCategory === "HYPERTENSION_STAGE_2") {
+    return (
+      <>
+        <span className="text-xl text-orange-600">Hypertension Stage 2</span>
+        <span className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="h-4 w-4 rounded-full bg-orange-600"></div>
+        </span>
+      </>
+    );
+  } else if (bloodPressureCategory === "HYPERTENSION_CRISIS") {
+    return (
+      <>
+        <span className="text-xl text-red-600">Hypertension Crisis</span>
+        <span className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="h-4 w-4 rounded-full bg-red-600"></div>
+        </span>
+      </>
+    );
+  } else {
+    throw Error(
+      "Unable to determine blood pressure category for: " +
+        bloodPressureCategory
+    );
+  }
+};
+
 export default async function Home() {
   const weighIns = await getWeighIns();
   const goal = await getGoal();
@@ -78,18 +147,20 @@ export default async function Home() {
               <span className="flex flex-col items-center text-xl">
                 <span className="text-xs uppercase text-gray-500">To Date</span>
                 {weighIn.weightProgress.toNumber()}
-                {weighIn.weightProgress.isPositive() &&
+                {determineWeighInTrend(weighIn.weightProgress.toNumber())}
+                {/* {weighIn.weightProgress.isPositive() &&
                   !weighIn.weightProgress.isZero() && <MdTrendingUp />}
                 {weighIn.weightProgress.isZero() && <MdTrendingFlat />}
-                {weighIn.weightProgress.isNegative() && <MdTrendingDown />}
+                {weighIn.weightProgress.isNegative() && <MdTrendingDown />} */}
               </span>
               <span className="flex flex-col items-center text-xl">
                 <span className="text-xs uppercase text-gray-500">Total</span>
                 {weighIn.weightTotalChange.toNumber()}
-                {weighIn.weightTotalChange.isPositive() &&
+                {determineWeighInTrend(weighIn.weightTotalChange.toNumber())}
+                {/* {weighIn.weightTotalChange.isPositive() &&
                   !weighIn.weightTotalChange.isZero() && <MdTrendingUp />}
                 {weighIn.weightTotalChange.isZero() && <MdTrendingFlat />}
-                {weighIn.weightTotalChange.isNegative() && <MdTrendingDown />}
+                {weighIn.weightTotalChange.isNegative() && <MdTrendingDown />} */}
               </span>
               <span className="flex flex-col items-center text-3xl">
                 <span className="text-xs uppercase text-gray-500">To Goal</span>
@@ -142,7 +213,7 @@ export default async function Home() {
               </span>
               <span className="flex flex-col items-center text-3xl">
                 <span className="text-xs uppercase text-gray-500">Pulse</span>
-                {bloodPressureReading.pulse?.toString()}
+                {bloodPressureReading.pulse?.toString() ?? "N/A"}
                 <span className="flex items-center gap-2 text-xs text-gray-500">
                   <BsHeartPulseFill /> BPM
                 </span>
@@ -151,12 +222,7 @@ export default async function Home() {
                 <span className="text-xs uppercase text-gray-500">
                   Category
                 </span>
-                <span className="text-xl text-green-600">
-                  {bloodPressureReading.category.toString()}
-                </span>
-                <span className="flex items-center gap-2 text-xs text-gray-500">
-                  <div className="h-4 w-4 rounded-full bg-green-600"></div>
-                </span>
+                {determineBloodPressureCategory(bloodPressureReading.category)}
               </span>
             </div>
           </div>
