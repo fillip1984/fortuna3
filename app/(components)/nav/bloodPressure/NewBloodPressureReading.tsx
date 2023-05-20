@@ -1,11 +1,13 @@
 // import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SubmitHandler, useForm, useWatch } from "react-hook-form";
+import { createBloodPressureReading } from "@/app/api/(client)/BloodPressureReadingApi";
+import { BloodPressureReading } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { HiArrowLeft, HiPlus } from "react-icons/hi2";
 import { DrawerFormOptions } from "../BottomNav";
-// import { eventKeys } from "../../services/EventService";
-// import { createRoutine } from "../../services/RoutineService";
-// import { Routine } from "../../services/Types";
-// import { DrawerFormOptions } from "./Nav";
+import { BsHeartPulseFill } from "react-icons/bs";
+import { GiHearts, GiNestedHearts } from "react-icons/gi";
+import { IoCalendarClearSharp } from "react-icons/io5";
 
 interface NewRoutineProps {
   setDrawerForm: React.Dispatch<React.SetStateAction<DrawerFormOptions>>;
@@ -17,79 +19,117 @@ export default function NewBloodPressureReading({
   setDrawerForm,
   handleDrawerToggle,
 }: NewRoutineProps) {
-  // const queryClient = useQueryClient();
-  // const { mutate: createRoutineMutator } = useMutation({
-  //   mutationFn: createRoutine,
-  //   onSuccess: () => {
-  //     // clear query caches
-  //     queryClient.invalidateQueries(eventKeys.lists());
-  //     handleDrawerToggle();
-  //   },
-  // });
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<BloodPressureReading>();
 
-  // const {
-  //   register,
-  //   handleSubmit,
-  //   formState: { errors },
-  //   control,
-  //   getValues,
-  // } = useForm<Routine>({
-  //   defaultValues: {
-  //     summary: "",
-  //     details: "",
-  //     occurrenceType: undefined,
-  //     daysOfWeek: [
-  //       { label: "Sunday", abbreviatedLabel: "Sun", selected: false },
-  //       { label: "Monday", abbreviatedLabel: "Mon", selected: false },
-  //       { label: "Tuesday", abbreviatedLabel: "Tue", selected: false },
-  //       { label: "Wednesday", abbreviatedLabel: "Wed", selected: false },
-  //       { label: "Thursday", abbreviatedLabel: "Thurs", selected: false },
-  //       { label: "Friday", abbreviatedLabel: "Fri", selected: false },
-  //       { label: "Saturday", abbreviatedLabel: "Sat", selected: false },
-  //     ],
-  //   },
-  // });
+  const onSubmit: SubmitHandler<BloodPressureReading> = async (formData) => {
+    console.log(formData);
 
-  // const eventType = useWatch({ control, name: "occurrenceType" });
-
-  // const onSubmit: SubmitHandler<Routine> = (formData) => {
-  //   // clean up artifacts, if a user first clicks one event type and made some selections those selections remain
-  //   switch (formData.occurrenceType) {
-  //     case "DAY_OF_WEEK":
-  //       formData.dayOfMonth = undefined;
-  //       break;
-  //     case "DAY_OF_MONTH":
-  //       formData.daysOfWeek?.forEach((day) => (day.selected = false));
-  //       break;
-  //     case "SPECIFIC_DAY":
-  //       formData.daysOfWeek?.forEach((day) => (day.selected = false));
-  //       formData.dayOfMonth = undefined;
-  //       break;
-  //   }
-
-  //   // remove abbreviatedLabel
-  //   formData;
-
-  //   createRoutineMutator(formData);
-  // };
+    const result = await createBloodPressureReading(formData);
+    router.refresh();
+    handleDrawerToggle();
+  };
 
   return (
-    <div id="new-routine" className="px-4">
-      <div className="flex justify-between">
-        <button
-          className="flex items-center gap-1 rounded border-2 border-black px-4 py-2 text-xl"
-          onClick={() => setDrawerForm("Selector")}>
-          <HiArrowLeft />
-          Back
-        </button>
-        <button
-          type="submit"
-          form="new-routine-form"
-          className="flex items-center gap-1 rounded bg-black px-4 py-2 text-2xl text-white">
-          Save
-          <HiPlus />
-        </button>
-      </div>
+    <div className="m-4 flex flex-col">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+        noValidate>
+        <div>
+          <label className="relative block text-gray-400 focus-within:text-gray-600">
+            <IoCalendarClearSharp className="pointer-events-none absolute left-3 top-1/2 h-8 w-8 -translate-y-1/2 transform" />
+            <input
+              type="date"
+              className="form-input block w-full appearance-none rounded border border-gray-900 bg-white px-4 py-3 pl-14 text-black placeholder-gray-400 focus:outline-none"
+              {...register("date", {
+                required: "Field is required",
+                valueAsDate: true,
+              })}
+              defaultValue={new Date().toISOString().substring(0, 10)}
+            />
+          </label>
+          {errors.date && (
+            <span className="text-red-300">{errors.date.message}</span>
+          )}
+        </div>
+
+        {/*  TODO: couldn't figure out how to require decimal only, you can type in letters and I can't stop it! */}
+        <div>
+          <label className="relative block text-gray-400 focus-within:text-gray-600">
+            <GiHearts className="pointer-events-none absolute left-3 top-1/2 h-8 w-8 -translate-y-1/2 transform" />
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="120 Systolic/upper number (mmHg)"
+              className="form-input block w-full appearance-none rounded border border-gray-900 bg-white px-4 py-3 pl-14 text-black placeholder-gray-400 focus:outline-none"
+              {...register("systolic", {
+                required: "Field is required",
+                valueAsNumber: true,
+              })}
+            />
+          </label>
+          {errors.systolic && (
+            <span className="text-red-300">{errors.systolic.message}</span>
+          )}
+        </div>
+
+        {/*  TODO: couldn't figure out how to require decimal only, you can type in letters and I can't stop it! */}
+        <div>
+          <label className="relative block text-gray-400 focus-within:text-gray-600">
+            <GiNestedHearts className="pointer-events-none absolute left-3 top-1/2 h-8 w-8 -translate-y-1/2 transform" />
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="80 Diastolic/lower number (mmHg)"
+              className="form-input block w-full appearance-none rounded border border-gray-900 bg-white px-4 py-3 pl-14 text-black placeholder-gray-400 focus:outline-none"
+              {...register("diastolic", {
+                required: "Field is required",
+                valueAsNumber: true,
+              })}
+            />
+          </label>
+          {errors.diastolic && (
+            <span className="text-red-300">{errors.diastolic.message}</span>
+          )}
+        </div>
+
+        <div>
+          <label className="relative block text-gray-400 focus-within:text-gray-600">
+            <BsHeartPulseFill className="pointer-events-none absolute left-3 top-1/2 h-8 w-8 -translate-y-1/2 transform" />
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="70 Pulse (BPM)"
+              className="form-input block w-full appearance-none rounded border border-gray-900 bg-white px-4 py-3 pl-14 text-black placeholder-gray-400 focus:outline-none"
+              {...register("pulse", { valueAsNumber: true })}
+            />
+          </label>
+          <span className="font-mono text-xs">Pulse (optional)</span>
+          {errors.pulse && (
+            <span className="block text-red-300">{errors.pulse.message}</span>
+          )}
+        </div>
+
+        <div className="fixed bottom-0 left-0 right-0 flex justify-between p-4">
+          <button
+            className="flex items-center gap-1 rounded border-2 border-black px-4 py-2 text-xl"
+            onClick={() => setDrawerForm("Selector")}>
+            <HiArrowLeft />
+            Back
+          </button>
+          <button
+            type="submit"
+            className="flex items-center gap-1 rounded bg-red-600 px-4 py-2 text-2xl text-white">
+            Save
+            <HiPlus />
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

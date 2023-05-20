@@ -3,6 +3,8 @@ import { BsCalendarEvent } from "react-icons/bs";
 import { GiStairsGoal } from "react-icons/gi";
 import { IoScaleOutline } from "react-icons/io5";
 import { MdTrendingDown, MdTrendingFlat, MdTrendingUp } from "react-icons/md";
+import { GiHearts, GiNestedHearts } from "react-icons/gi";
+import { BsHeartPulseFill } from "react-icons/bs";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,24 @@ async function getWeighIns() {
   return weighIns;
 }
 
+async function getBloodPressureReadings() {
+  const bloodPressureReadings = await prisma.bloodPressureReading.findMany({
+    orderBy: {
+      date: "desc",
+    },
+    select: {
+      id: true,
+      date: true,
+      systolic: true,
+      diastolic: true,
+      pulse: true,
+      category: true,
+    },
+  });
+
+  return bloodPressureReadings;
+}
+
 async function getGoal() {
   const goal = await prisma.goal.findFirst();
   return goal;
@@ -33,6 +53,8 @@ export default async function Home() {
   const weighIns = await getWeighIns();
   const goal = await getGoal();
   const goalWeight = goal?.weight.toNumber();
+
+  const bloodPressureReadings = await getBloodPressureReadings();
 
   return (
     <>
@@ -86,6 +108,57 @@ export default async function Home() {
               </span>
               <span>28.4 BMI</span>
             </div> */}
+          </div>
+        ))}
+      </div>
+
+      <div className="my-4 flex flex-col gap-2">
+        {bloodPressureReadings.map((bloodPressureReading) => (
+          <div
+            key={bloodPressureReading.id}
+            className="flex flex-col rounded-lg border-2">
+            <div className="flex items-center justify-center gap-2 bg-gray-100 p-1">
+              <BsCalendarEvent />
+              {bloodPressureReading.date.toISOString().substring(0, 10)}
+            </div>
+            <div className="flex justify-between bg-gray-100 p-4">
+              <span className="flex flex-col items-center text-3xl">
+                <span className="text-xs uppercase text-gray-500">
+                  Systolic
+                </span>
+                {bloodPressureReading.systolic.toString()}
+                <span className="flex items-center gap-2 text-xs text-gray-500">
+                  <GiHearts /> mmHg
+                </span>
+              </span>
+              <span className="flex flex-col items-center text-3xl">
+                <span className="text-xs uppercase text-gray-500">
+                  Diastolic
+                </span>
+                {bloodPressureReading.diastolic.toString()}
+                <span className="flex items-center gap-2 text-xs text-gray-500">
+                  <GiNestedHearts /> mmHg
+                </span>
+              </span>
+              <span className="flex flex-col items-center text-3xl">
+                <span className="text-xs uppercase text-gray-500">Pulse</span>
+                {bloodPressureReading.pulse?.toString()}
+                <span className="flex items-center gap-2 text-xs text-gray-500">
+                  <BsHeartPulseFill /> BPM
+                </span>
+              </span>
+              <span className="flex flex-col items-center text-3xl">
+                <span className="text-xs uppercase text-gray-500">
+                  Category
+                </span>
+                <span className="text-xl text-green-600">
+                  {bloodPressureReading.category.toString()}
+                </span>
+                <span className="flex items-center gap-2 text-xs text-gray-500">
+                  <div className="h-4 w-4 rounded-full bg-green-600"></div>
+                </span>
+              </span>
+            </div>
           </div>
         ))}
       </div>
