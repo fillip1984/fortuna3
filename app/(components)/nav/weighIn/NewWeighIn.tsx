@@ -1,6 +1,7 @@
 import Goal from "@/app/(components)/nav/weighIn/Goal";
 import { createWeighIn } from "@/app/api/(client)/WeighInApi";
 import { WeighIn } from "@prisma/client";
+import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { GiBiceps } from "react-icons/gi";
 import { HiArrowLeft, HiPlus } from "react-icons/hi2";
@@ -11,14 +12,16 @@ export default function NewWeighIn({
   setDrawerForm,
   handleDrawerToggle,
 }: NewItemDrawerProps) {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<WeighIn>();
 
-  const onSubmit: SubmitHandler<WeighIn> = (formData) => {
-    createWeighIn(formData);
+  const onSubmit: SubmitHandler<WeighIn> = async (formData) => {
+    const result = await createWeighIn(formData);
+    router.refresh();
     handleDrawerToggle();
   };
 
