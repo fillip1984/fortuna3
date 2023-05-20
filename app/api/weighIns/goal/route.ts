@@ -23,3 +23,8 @@ export async function POST(request: Request) {
     return NextResponse.json(result);
   }
 }
+
+export async function GET() {
+  const goal = await prisma.goal.findFirst();
+  return NextResponse.json(goal);
+}

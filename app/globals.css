@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-h1 {
+  h1 {
     @apply text-8xl;
   }
 
@@ -21,4 +21,5 @@ h1 {
 
   h5 {
     @apply text-xl;
-  }}
+  }
+}

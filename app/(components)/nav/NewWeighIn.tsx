@@ -1,15 +1,11 @@
+import Goal from "@/app/(components)/nav/Goal";
 import { createWeighIn } from "@/app/api/(client)/WeighInApi";
-import { Goal, WeighIn } from "@prisma/client";
+import { WeighIn } from "@prisma/client";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { GiBiceps } from "react-icons/gi";
 import { HiArrowLeft, HiPlus } from "react-icons/hi2";
-import {
-  IoCalendarClearSharp,
-  IoScaleSharp,
-  IoTrophySharp,
-} from "react-icons/io5";
+import { IoCalendarClearSharp, IoScaleSharp } from "react-icons/io5";
 import { NewItemDrawerProps } from "./BottomNav";
-import { createOrUpdateWeightGoal } from "@/app/api/(client)/GoalApi";
 
 export default function NewWeighIn({
   setDrawerForm,
@@ -22,25 +18,8 @@ export default function NewWeighIn({
   } = useForm<WeighIn>();
 
   const onSubmit: SubmitHandler<WeighIn> = (formData) => {
-    console.log(formData);
     createWeighIn(formData);
     handleDrawerToggle();
-    // if (isNew) {
-    //   createWeighInMutation(formData as NewWeighIn);
-    // } else {
-    //   updateWeighInMutation(formData as WeighIn);
-    // }
-  };
-
-  const {
-    register: goalRegister,
-    handleSubmit: goalHandleSubmit,
-    formState: { errors: goalErrors },
-  } = useForm<Goal>();
-
-  const goalOnSubmit: SubmitHandler<Goal> = (goalFormData) => {
-    console.log(goalFormData);
-    createOrUpdateWeightGoal(goalFormData);
   };
 
   return (
@@ -122,32 +101,8 @@ export default function NewWeighIn({
         </div>
       </form>
 
-      <form
-        onSubmit={goalHandleSubmit(goalOnSubmit)}
-        className="my-12 rounded border-2 border-slate-400 px-4 py-2">
-        <h4>Goal</h4>
-        <p className="text-sm">Set a weight goal</p>
-        <div className="">
-          <label className="relative block text-gray-400 focus-within:text-gray-600">
-            <IoTrophySharp className="pointer-events-none absolute left-3 top-1/2 h-8 w-8 -translate-y-1/2 transform" />
-            <input
-              type="number"
-              inputMode="decimal"
-              placeholder="175"
-              className="form-input block w-full appearance-none rounded border border-gray-900 bg-white px-4 py-3 pl-14 text-black placeholder-gray-400 focus:outline-none"
-              {...goalRegister("weight", { valueAsNumber: true })}
-            />
-          </label>
-          {errors.bodyFatPercentage && (
-            <span className="block text-red-300">
-              {errors.bodyFatPercentage.message}
-            </span>
-          )}
-          <button type="submit" className="mt-2 bg-red-500 px-2 py-1">
-            Update
-          </button>
-        </div>
-      </form>
+      {/* @ts-expect-error Server Component */}
+      <Goal />
     </div>
   );
 }

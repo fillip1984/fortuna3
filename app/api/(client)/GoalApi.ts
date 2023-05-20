@@ -7,3 +7,8 @@ export async function createOrUpdateWeightGoal(goal: Goal) {
   });
   return (await result.json()) as Goal;
 }
+
+export async function getGoal() {
+  const result = await fetch("/api/weighIns/goal");
+  return (await result.json()) as Goal;
+}

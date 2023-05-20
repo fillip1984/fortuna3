@@ -12,27 +12,38 @@ type WeighInDateDiffed = {
 export async function POST(request: Request) {
   const weighIn: WeighIn = await request.json();
   // WHAT!!!
-  //   console.log("weight", typeof weighIn.weight);
-  //   weighIn.weight = new Decimal(weighIn.weight);
-  //   console.log("weight", typeof weighIn.weight);
+  console.log("weight", typeof weighIn.weight);
+  weighIn.weight = new Decimal(weighIn.weight);
+  console.log("weight", typeof weighIn.weight);
 
   const firstWeighIn = await getFirstWeighIn();
-  const previousWeighIn = (await getPreviousWeighIn(weighIn.date)).weighIn;
+
   const goal = await getGoal();
+  if (goal === null) {
+    throw Error("Unable to track weight trends without goal being first set");
+  }
   const goalWeight = goal.weight.toNumber();
 
   // calculate trends
   let weightProgress;
   let weightToGoal;
   let weightTotalChange;
+  let previousWeighIn: WeighIn | null = null;
 
   if (firstWeighIn == null) {
-    //first time weighing in
     weightProgress = 0;
     weightTotalChange = 0;
     weightToGoal =
       Math.round((weighIn.weight.toNumber() - goalWeight) * 100) / 100;
-  } else if (previousWeighIn) {
+  } else {
+    previousWeighIn = await getPreviousWeighIn(weighIn.date);
+
+    if (previousWeighIn === null) {
+      throw Error(
+        "Unable to find previous weigh in so unable to record weight trends"
+      );
+    }
+
     weightProgress = (
       weighIn.weight.toNumber() - previousWeighIn.weight.toNumber()
     ).toFixed(2);
@@ -42,8 +53,6 @@ export async function POST(request: Request) {
     ).toFixed(2);
 
     weightToGoal = (weighIn.weight.toNumber() - goalWeight).toFixed(2);
-  } else {
-    throw Error("Cannot find previous weigh In");
   }
 
   const result = await prisma.weighIn.create({
@@ -54,17 +63,35 @@ export async function POST(request: Request) {
       weightProgress,
       weightTotalChange,
       weightToGoal,
-      previousWeighInId: previousWeighIn.id,
+      previousWeighInId: previousWeighIn?.id,
     },
   });
   return NextResponse.json(result);
 }
 
+export async function GET() {
+  const weighIns = await prisma.weighIn.findMany({
+    orderBy: {
+      date: "desc",
+    },
+    select: {
+      id: true,
+      date: true,
+      weight: true,
+      weightProgress: true,
+      weightTotalChange: true,
+      weightToGoal: true,
+    },
+  });
+
+  return weighIns;
+}
+
 const getPreviousWeighIn = async (date: Date) => {
   // WHAT! https://itsjavascript.com/javascript-typeerror-toisostring-is-not-a-function
-  //   console.log("date type is", typeof date);
-  //   date = new Date(date);
-  //   console.log("date type is", typeof date);
+  console.log("date type is", typeof date);
+  date = new Date(date);
+  console.log("date type is", typeof date);
 
   const allWeighIns = await prisma.weighIn.findMany({
     orderBy: {
@@ -88,9 +115,9 @@ const getPreviousWeighIn = async (date: Date) => {
   );
 
   if (previousWeighIns.length > 0) {
-    return previousWeighIns[0];
+    return previousWeighIns[0].weighIn;
   } else {
-    throw Error("Unable to find previous weigh in");
+    return null;
   }
 };
 
@@ -101,15 +128,13 @@ const getFirstWeighIn = async () => {
     },
     take: 1,
   });
+
   return firstWeighIn;
 };
 
 const getGoal = async () => {
+  // there should only ever be 1
   let goal = await prisma.goal.findFirst();
-
-  if (goal === null) {
-    throw Error("No goal has been set");
-  }
 
   return goal;
 };
