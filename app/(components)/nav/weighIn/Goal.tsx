@@ -7,6 +7,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { IoTrophySharp } from "react-icons/io5";
 
 export default function Goal() {
+  // TODO: need to learn how to load and use suspense
   const [goal, setGoal] = useState<Goal | null>(null);
   useEffect(() => {
     async function initializeState() {
