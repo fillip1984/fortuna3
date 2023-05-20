@@ -35,7 +35,7 @@ export default function Goal() {
           className="my-12 rounded border-2 border-slate-400 px-4 py-2">
           <input type="hidden" {...register("id")} defaultValue={goal?.id} />
           <h4>Goal</h4>
-          <p className="text-sm">Set a goal</p>
+          <p className="text-sm">Set a weight goal</p>
           <div className="">
             <label className="relative block text-gray-400 focus-within:text-gray-600">
               <IoTrophySharp className="pointer-events-none absolute left-3 top-1/2 h-8 w-8 -translate-y-1/2 transform" />

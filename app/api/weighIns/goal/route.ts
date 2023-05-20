@@ -1,5 +1,6 @@
 import { prisma } from "@/prisma/globalPrismaClient";
 import { Goal } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -25,6 +26,15 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-  const goal = await prisma.goal.findFirst();
+  let goal = await prisma.goal.findFirst();
+  // get or return new... there should ALWAYS only be 1 goal
+  if (goal === null) {
+    goal = {
+      id: "",
+      weight: new Decimal(0),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  }
   return NextResponse.json(goal);
 }

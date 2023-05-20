@@ -13,7 +13,7 @@ datasource db {
 model WeighIn {
   id                 String   @id @default(cuid())
   createdAt          DateTime @default(now())
-  updatedAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
   date               DateTime @unique
   weight             Decimal
   weightProgress     Decimal
@@ -28,6 +28,25 @@ model WeighIn {
 model Goal {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   weight    Decimal
+}
+
+model BloodPressureReading {
+  id        String                @id @default(cuid())
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  date      DateTime              @unique
+  systolic  Int
+  diastolic Int
+  pulse     Int?
+  category  BloodPressureCategory
+}
+
+enum BloodPressureCategory {
+  NORMAL
+  ELEVATED
+  HYPERTENSION_STAGE_1
+  HYPERTENSION_STAGE_2
+  HYPERTENSION_CRISIS
 }
