@@ -4,6 +4,8 @@ import { GiStairsGoal } from "react-icons/gi";
 import { IoScaleOutline } from "react-icons/io5";
 import { MdTrendingDown, MdTrendingFlat, MdTrendingUp } from "react-icons/md";
 
+export const dynamic = "force-dynamic";
+
 async function getWeighIns() {
   const weighIns = await prisma.weighIn.findMany({
     orderBy: {
