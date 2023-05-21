@@ -1,4 +1,5 @@
 import { WeighIn } from "@prisma/client";
+import Link from "next/link";
 import { BsCalendarEvent } from "react-icons/bs";
 import { GiStairsGoal } from "react-icons/gi";
 import { IoScaleOutline } from "react-icons/io5";
@@ -24,7 +25,10 @@ export default function WeighInCard({
   goalWeight: number | undefined;
 }) {
   return (
-    <div key={weighIn.id} className="my-2 flex flex-col rounded-lg border-2">
+    <Link
+      href={`/weighIns/${weighIn.id}`}
+      key={weighIn.id}
+      className="my-2 flex flex-col rounded-lg border-2">
       <div className="flex items-center justify-center gap-2 bg-gray-100 p-1">
         <BsCalendarEvent />
         {weighIn.date.toISOString().substring(0, 10)}
@@ -72,6 +76,6 @@ export default function WeighInCard({
               </span>
               <span>28.4 BMI</span>
             </div> */}
-    </div>
+    </Link>
   );
 }

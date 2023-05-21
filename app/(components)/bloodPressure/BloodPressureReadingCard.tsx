@@ -1,4 +1,5 @@
 import { BloodPressureCategory, BloodPressureReading } from "@prisma/client";
+import Link from "next/link";
 import { BsCalendarEvent, BsHeartPulseFill } from "react-icons/bs";
 import { GiHearts, GiNestedHearts } from "react-icons/gi";
 
@@ -54,7 +55,8 @@ export default function BloodPressureReadingCard({
   bloodPressureReading: BloodPressureReading;
 }) {
   return (
-    <div
+    <Link
+      href={`/bloodPressureReadings/${bloodPressureReading.id}`}
       key={bloodPressureReading.id}
       className="my-2 flex flex-col rounded-lg border-2">
       <div className="flex items-center justify-center gap-2 bg-gray-100 p-1">
@@ -63,22 +65,47 @@ export default function BloodPressureReadingCard({
       </div>
       <div className="flex justify-between bg-gray-100 p-4">
         <span className="flex flex-col items-center text-3xl">
-          <span className="text-xs uppercase text-gray-500">Systolic</span>
-          {bloodPressureReading.systolic.toString()}
+          <span className="text-xs uppercase text-gray-500">
+            Systolic{" "}
+            <span className="text-xs uppercase text-gray-400">(previous)</span>
+          </span>
+          <span className="flex items-center gap-1">
+            {bloodPressureReading.systolic}
+            <span className="text-xl text-gray-400">
+              ({bloodPressureReading.systolicChange})
+            </span>
+          </span>
           <span className="flex items-center gap-2 text-xs text-gray-500">
             <GiHearts /> mmHg
           </span>
         </span>
         <span className="flex flex-col items-center text-3xl">
-          <span className="text-xs uppercase text-gray-500">Diastolic</span>
-          {bloodPressureReading.diastolic.toString()}
+          <span className="text-xs uppercase text-gray-500">
+            Diastolic{" "}
+            <span className="text-xs uppercase text-gray-400">(previous)</span>
+          </span>
+          <span className="flex items-center gap-1">
+            {bloodPressureReading.diastolic}
+            <span className="text-xl text-gray-400">
+              ({bloodPressureReading.diastolicChange})
+            </span>
+          </span>
           <span className="flex items-center gap-2 text-xs text-gray-500">
             <GiNestedHearts /> mmHg
           </span>
         </span>
         <span className="flex flex-col items-center text-3xl">
-          <span className="text-xs uppercase text-gray-500">Pulse</span>
-          {bloodPressureReading.pulse?.toString() ?? "N/A"}
+          <span className="text-xs uppercase text-gray-500">
+            Pulse{" "}
+            <span className="text-xs uppercase text-gray-400">(previous)</span>
+          </span>
+          <span className="flex items-center gap-1">
+            {bloodPressureReading.pulse ?? "N/A"}
+            <span className="text-xl text-gray-400">
+              ({bloodPressureReading.pulseChange ?? "N/A"})
+            </span>
+          </span>
+
           <span className="flex items-center gap-2 text-xs text-gray-500">
             <BsHeartPulseFill /> BPM
           </span>
@@ -88,6 +115,6 @@ export default function BloodPressureReadingCard({
           {determineBloodPressureCategory(bloodPressureReading.category)}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,5 +1,6 @@
 import { prisma } from "@/prisma/globalPrismaClient";
 import { BloodPressureCategory, BloodPressureReading } from "@prisma/client";
+import { differenceInCalendarDays } from "date-fns";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -12,28 +13,28 @@ export async function POST(request: Request) {
 
   let category: BloodPressureCategory;
   if (
+    bloodPressureReading.systolic < 90 &&
+    bloodPressureReading.diastolic < 60
+  ) {
+    category = "LOW";
+  } else if (
     bloodPressureReading.systolic < 120 &&
     bloodPressureReading.diastolic < 80
   ) {
     category = "NORMAL";
   } else if (
-    bloodPressureReading.systolic >= 120 &&
-    bloodPressureReading.systolic <= 129 &&
+    bloodPressureReading.systolic < 130 &&
     bloodPressureReading.diastolic < 80
   ) {
     category = "ELEVATED";
   } else if (
-    bloodPressureReading.systolic >= 130 &&
-    bloodPressureReading.systolic <= 139 &&
-    bloodPressureReading.diastolic >= 80 &&
-    bloodPressureReading.diastolic <= 89
+    bloodPressureReading.systolic < 140 &&
+    bloodPressureReading.diastolic < 90
   ) {
     category = "HYPERTENSION_STAGE_1";
   } else if (
-    (bloodPressureReading.systolic >= 140 &&
-      bloodPressureReading.systolic < 179) ||
-    (bloodPressureReading.diastolic >= 90 &&
-      bloodPressureReading.diastolic <= 119)
+    bloodPressureReading.systolic < 180 &&
+    bloodPressureReading.diastolic < 120
   ) {
     category = "HYPERTENSION_STAGE_2";
   } else if (
@@ -45,6 +46,39 @@ export async function POST(request: Request) {
     throw Error("Unable to determine blood pressure category");
   }
 
+  //calculate trends
+  let systolicChange;
+  let diastolicChange;
+  let pulseChange;
+  const firstReading = await getFirstReading();
+  let previousReading = await getPreviousReading(bloodPressureReading.date);
+
+  if (firstReading == null) {
+    systolicChange = 0;
+    diastolicChange = 0;
+    pulseChange = 0;
+  } else {
+    if (previousReading === null) {
+      throw Error(
+        "Unable to find previous blood pressure reading so unable to record reading trends"
+      );
+    }
+
+    systolicChange = bloodPressureReading.systolic - previousReading.systolic;
+    diastolicChange =
+      bloodPressureReading.diastolic - previousReading.diastolic;
+    if (
+      bloodPressureReading.pulse === 0 ||
+      bloodPressureReading.pulse === null ||
+      previousReading.pulse === 0 ||
+      previousReading.pulse === null
+    ) {
+      pulseChange = null;
+    } else {
+      pulseChange = bloodPressureReading.pulse - previousReading.pulse;
+    }
+  }
+
   const result = await prisma.bloodPressureReading.create({
     data: {
       date: bloodPressureReading.date,
@@ -52,6 +86,9 @@ export async function POST(request: Request) {
       diastolic: bloodPressureReading.diastolic,
       pulse: bloodPressureReading.pulse,
       category,
+      systolicChange,
+      diastolicChange,
+      pulseChange,
     },
   });
   return NextResponse.json(result);
@@ -74,3 +111,50 @@ export async function GET() {
 
   return bloodPressureReadings;
 }
+
+const getFirstReading = async () => {
+  return prisma.bloodPressureReading.findFirst({
+    orderBy: {
+      date: "asc",
+    },
+    take: 1,
+  });
+};
+
+type DateDiffed = {
+  daysBetween: number;
+  event: BloodPressureReading;
+};
+const getPreviousReading = async (date: Date) => {
+  // WHAT! https://itsjavascript.com/javascript-typeerror-toisostring-is-not-a-function
+  console.log("date type is", typeof date);
+  date = new Date(date);
+  console.log("date type is", typeof date);
+
+  const allReadings = await prisma.bloodPressureReading.findMany({
+    orderBy: {
+      date: "desc",
+    },
+  });
+
+  const dateDiffed: DateDiffed[] = allReadings
+    .map((previous) => {
+      return {
+        daysBetween: differenceInCalendarDays(date, previous.date),
+        event: previous,
+      };
+    })
+    .sort((a, b) => {
+      return a.daysBetween - b.daysBetween;
+    });
+
+  const previousReadings = dateDiffed.filter(
+    (dateDiff) => dateDiff.daysBetween > 0
+  );
+
+  if (previousReadings.length > 0) {
+    return previousReadings[0].event;
+  } else {
+    return null;
+  }
+};

@@ -33,17 +33,21 @@ model Goal {
 }
 
 model BloodPressureReading {
-  id        String                @id @default(cuid())
-  createdAt DateTime              @default(now())
-  updatedAt DateTime              @updatedAt
-  date      DateTime              @unique
-  systolic  Int
-  diastolic Int
-  pulse     Int?
-  category  BloodPressureCategory
+  id              String                @id @default(cuid())
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  date            DateTime              @unique
+  systolic        Int
+  diastolic       Int
+  pulse           Int?
+  systolicChange  Int
+  diastolicChange Int
+  pulseChange     Int?
+  category        BloodPressureCategory
 }
 
 enum BloodPressureCategory {
+  LOW
   NORMAL
   ELEVATED
   HYPERTENSION_STAGE_1
