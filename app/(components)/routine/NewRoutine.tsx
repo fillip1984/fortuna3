@@ -1,7 +1,7 @@
 // import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { HiArrowLeft, HiPlus } from "react-icons/hi2";
-import { DrawerFormOptions } from "../BottomNav";
+import { DrawerFormOptions } from "../nav/BottomNav";
 // import { eventKeys } from "../../services/EventService";
 // import { createRoutine } from "../../services/RoutineService";
 // import { Routine } from "../../services/Types";

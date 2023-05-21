@@ -9,9 +9,9 @@ import {
 } from "react-icons/hi2";
 import { IoScaleOutline } from "react-icons/io5";
 import { MdOutlineBloodtype } from "react-icons/md";
-import NewRoutine from "./routine/NewRoutine";
-import NewWeighIn from "./weighIn/NewWeighIn";
-import NewBloodPressureReading from "./bloodPressure/NewBloodPressureReading";
+import NewRoutine from "../routine/NewRoutine";
+import NewWeighIn from "../weighIn/NewWeighIn";
+import NewBloodPressureReading from "../bloodPressure/NewBloodPressureReading";
 
 export type DrawerFormOptions =
   | "Selector"

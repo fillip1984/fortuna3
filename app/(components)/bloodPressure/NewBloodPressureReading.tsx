@@ -4,7 +4,7 @@ import { BloodPressureReading } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { HiArrowLeft, HiPlus } from "react-icons/hi2";
-import { DrawerFormOptions } from "../BottomNav";
+import { DrawerFormOptions } from "../nav/BottomNav";
 import { BsHeartPulseFill } from "react-icons/bs";
 import { GiHearts, GiNestedHearts } from "react-icons/gi";
 import { IoCalendarClearSharp } from "react-icons/io5";

@@ -1,4 +1,4 @@
-import Goal from "@/app/(components)/nav/weighIn/Goal";
+import Goal from "@/app/(components)/weighIn/Goal";
 import { createWeighIn } from "@/app/api/(client)/WeighInApi";
 import { WeighIn } from "@prisma/client";
 import { useRouter } from "next/navigation";
@@ -6,7 +6,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { GiBiceps } from "react-icons/gi";
 import { HiArrowLeft, HiPlus } from "react-icons/hi2";
 import { IoCalendarClearSharp, IoScaleSharp } from "react-icons/io5";
-import { NewItemDrawerProps } from "../BottomNav";
+import { NewItemDrawerProps } from "../nav/BottomNav";
 
 export default function NewWeighIn({
   setDrawerForm,

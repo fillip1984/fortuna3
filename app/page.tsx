@@ -1,35 +1,26 @@
 import { prisma } from "@/prisma/globalPrismaClient";
-import { BsCalendarEvent } from "react-icons/bs";
-import { GiStairsGoal } from "react-icons/gi";
-import { IoScaleOutline } from "react-icons/io5";
-import { MdTrendingDown, MdTrendingFlat, MdTrendingUp } from "react-icons/md";
-import { GiHearts, GiNestedHearts } from "react-icons/gi";
-import { BsHeartPulseFill } from "react-icons/bs";
-import {
-  BloodPressureCategory,
-  BloodPressureReading,
-  WeighIn,
-} from "@prisma/client";
+import { BloodPressureReading, WeighIn } from "@prisma/client";
+import BloodPressureReadingCard from "./(components)/bloodPressure/BloodPressureReadingCard";
+import WeighInCard from "./(components)/weighIn/WeighInCard";
 
 export const dynamic = "force-dynamic";
 
 type TimelineEntry = {
-  date: Date;
-  entries: Array<
-    | (Partial<WeighIn> & { date: Date }[])
-    | (Partial<BloodPressureReading> & { date: Date }[])
-  >;
+  type: "WeighIn" | "BloodPressureReading";
+  event: WeighIn | BloodPressureReading;
 };
 
-async function chronoEntries(
-  weighIns: Partial<WeighIn> & { date: Date }[],
-  bloodPressureReadings: Partial<BloodPressureReading> & { date: Date }[]
-) {
-  console.log("weighIns", weighIns.length);
-  console.log("bloodPressureReadings", bloodPressureReadings.length);
+type TimelineEvent = {
+  date: Date;
+  entries: TimelineEntry[];
+};
 
+async function getTimeline(
+  weighIns: WeighIn[],
+  bloodPressureReadings: BloodPressureReading[]
+) {
   // fold in the cheese
-  let timeline: TimelineEntry[];
+  let timeline: TimelineEvent[] = [];
   let uniqueDatesAsNumbers = new Set<number>();
   if (weighIns) {
     weighIns
@@ -48,29 +39,37 @@ async function chronoEntries(
     uniqueDates.push(new Date(value));
   });
 
-  console.log("unique dates:", uniqueDates);
   let sortedUniqueDates = uniqueDates.sort(function (a: Date, b: Date) {
     return b.getTime() - a.getTime();
   });
-  console.log("sorted unique dates:", sortedUniqueDates);
+
   sortedUniqueDates.forEach((uniqueDate) => {
-    let timelineEntry: TimelineEntry = {
+    let timelineEntry: TimelineEvent = {
       date: uniqueDate,
       entries: [],
     };
-    let weighInsThatMatch: Partial<WeighIn> & { date: Date }[] =
-      weighIns.filter((weighIn) => weighIn.date !== timelineEntry.date);
-    timelineEntry.entries.push(weighInsThatMatch);
 
-    let bprThatMatch: Partial<BloodPressureReading> & { date: Date }[] =
-      bloodPressureReadings.filter(
-        (weighIn) => bloodPressureReadings.date !== timelineEntry.date
-      );
-    timelineEntry.entries.push(bprThatMatch);
-    console.log(timelineEntry);
+    weighIns
+      .filter(
+        (weighIn) => weighIn.date.getTime() === timelineEntry.date.getTime()
+      )
+      .forEach((weighIn) => {
+        timelineEntry.entries.push({ type: "WeighIn", event: weighIn });
+      });
 
-    timeline?.push(timelineEntry);
+    bloodPressureReadings
+      .filter((bpr) => bpr.date.getTime() === timelineEntry.date.getTime())
+      .forEach((bpr) => {
+        timelineEntry.entries.push({
+          type: "BloodPressureReading",
+          event: bpr,
+        });
+      });
+
+    timeline.push(timelineEntry);
   });
+
+  return timeline;
 }
 
 async function getWeighIns() {
@@ -78,14 +77,14 @@ async function getWeighIns() {
     orderBy: {
       date: "desc",
     },
-    select: {
-      id: true,
-      date: true,
-      weight: true,
-      weightProgress: true,
-      weightTotalChange: true,
-      weightToGoal: true,
-    },
+    // select: {
+    //   id: true,
+    //   date: true,
+    //   weight: true,
+    //   weightProgress: true,
+    //   weightTotalChange: true,
+    //   weightToGoal: true,
+    // },
   });
 
   return weighIns;
@@ -96,14 +95,14 @@ async function getBloodPressureReadings() {
     orderBy: {
       date: "desc",
     },
-    select: {
-      id: true,
-      date: true,
-      systolic: true,
-      diastolic: true,
-      pulse: true,
-      category: true,
-    },
+    // select: {
+    //   id: true,
+    //   date: true,
+    //   systolic: true,
+    //   diastolic: true,
+    //   pulse: true,
+    //   category: true,
+    // },
   });
 
   return bloodPressureReadings;
@@ -114,64 +113,6 @@ async function getGoal() {
   return goal;
 }
 
-const determineWeighInTrend = (weight: number) => {
-  if (weight === 0) {
-    return <MdTrendingFlat />;
-  } else if (weight > 0) {
-    return <MdTrendingUp />;
-  } else if (weight < 0) {
-    return <MdTrendingDown />;
-  } else {
-    throw Error("Unable to determine trend for: " + weight);
-  }
-};
-
-const determineBloodPressureCategory = (
-  bloodPressureCategory: BloodPressureCategory
-) => {
-  if (bloodPressureCategory === "NORMAL") {
-    return (
-      <>
-        <div className="my-1 h-6 w-6 rounded-full bg-green-600"></div>
-        <span className="text-xs text-green-600">Normal</span>
-      </>
-    );
-  } else if (bloodPressureCategory === "ELEVATED") {
-    return (
-      <>
-        <div className="my-1 h-6 w-6 rounded-full bg-yellow-300"></div>
-        <span className="text-xs text-yellow-300">Elevated</span>
-      </>
-    );
-  } else if (bloodPressureCategory === "HYPERTENSION_STAGE_1") {
-    return (
-      <>
-        <div className="my-1 h-6 w-6 rounded-full bg-orange-400"></div>
-        <span className="text-xs text-orange-400">Hypertension 1</span>
-      </>
-    );
-  } else if (bloodPressureCategory === "HYPERTENSION_STAGE_2") {
-    return (
-      <>
-        <div className="my-1 h-6 w-6 rounded-full bg-orange-600"></div>
-        <span className="text-xs text-orange-600">Hypertension 2</span>
-      </>
-    );
-  } else if (bloodPressureCategory === "HYPERTENSION_CRISIS") {
-    return (
-      <>
-        <div className="my-1 h-6 w-6 rounded-full bg-red-600"></div>
-        <span className="text-xs text-red-600">Hypertension Crisis</span>
-      </>
-    );
-  } else {
-    throw Error(
-      "Unable to determine blood pressure category for: " +
-        bloodPressureCategory
-    );
-  }
-};
-
 export default async function Home() {
   const weighIns = await getWeighIns();
   const goal = await getGoal();
@@ -179,107 +120,38 @@ export default async function Home() {
 
   const bloodPressureReadings = await getBloodPressureReadings();
 
-  const timeline = await chronoEntries(weighIns, bloodPressureReadings);
+  const timeline = await getTimeline(weighIns, bloodPressureReadings);
 
   return (
     <>
       <h3 className="my-2 text-center">ab initio</h3>
-
-      <div className="flex flex-col gap-2">
-        {weighIns.map((weighIn) => (
-          <div key={weighIn.id} className="flex flex-col rounded-lg border-2">
-            <div className="flex items-center justify-center gap-2 bg-gray-100 p-1">
-              <BsCalendarEvent />
-              {weighIn.date.toISOString().substring(0, 10)}
-            </div>
-            <div className="flex flex-1 justify-between bg-gray-100 p-4">
-              <span className="flex flex-col items-center text-3xl">
-                <span className="text-xs uppercase text-gray-500">Weight</span>
-                {weighIn.weight.toNumber()}
-                <span className="flex items-center gap-2 text-xs text-gray-500">
-                  <IoScaleOutline /> lbs
-                </span>
-              </span>
-              <span className="flex flex-col items-center text-xl">
-                <span className="text-xs uppercase text-gray-500">To Date</span>
-                {weighIn.weightProgress.toNumber()}
-                {determineWeighInTrend(weighIn.weightProgress.toNumber())}
-                {/* {weighIn.weightProgress.isPositive() &&
-                  !weighIn.weightProgress.isZero() && <MdTrendingUp />}
-                {weighIn.weightProgress.isZero() && <MdTrendingFlat />}
-                {weighIn.weightProgress.isNegative() && <MdTrendingDown />} */}
-              </span>
-              <span className="flex flex-col items-center text-xl">
-                <span className="text-xs uppercase text-gray-500">Total</span>
-                {weighIn.weightTotalChange.toNumber()}
-                {determineWeighInTrend(weighIn.weightTotalChange.toNumber())}
-                {/* {weighIn.weightTotalChange.isPositive() &&
-                  !weighIn.weightTotalChange.isZero() && <MdTrendingUp />}
-                {weighIn.weightTotalChange.isZero() && <MdTrendingFlat />}
-                {weighIn.weightTotalChange.isNegative() && <MdTrendingDown />} */}
-              </span>
-              <span className="flex flex-col items-center text-3xl">
-                <span className="text-xs uppercase text-gray-500">To Goal</span>
-                {weighIn.weightToGoal.toNumber()}
-                <span className="flex items-center gap-2 text-xs text-gray-500">
-                  <GiStairsGoal />
-                  {goalWeight} lbs
-                </span>
-              </span>
-            </div>
-
-            {/* TODO: add in additional stats? */}
-            {/* <div className="flex justify-around border-t-2 border-t-gray-200 bg-gray-300 p-2">
-              <span>
-                23% bf <GiMuscleFat />
-              </span>
-              <span>28.4 BMI</span>
-            </div> */}
-          </div>
-        ))}
-      </div>
-
-      <div className="my-4 flex flex-col gap-2">
-        {bloodPressureReadings.map((bloodPressureReading) => (
+      <div className="flex flex-col">
+        {timeline.map((timelineEvent) => (
           <div
-            key={bloodPressureReading.id}
-            className="flex flex-col rounded-lg border-2">
-            <div className="flex items-center justify-center gap-2 bg-gray-100 p-1">
-              <BsCalendarEvent />
-              {bloodPressureReading.date.toISOString().substring(0, 10)}
-            </div>
-            <div className="flex justify-between bg-gray-100 p-4">
-              <span className="flex flex-col items-center text-3xl">
-                <span className="text-xs uppercase text-gray-500">
-                  Systolic
-                </span>
-                {bloodPressureReading.systolic.toString()}
-                <span className="flex items-center gap-2 text-xs text-gray-500">
-                  <GiHearts /> mmHg
-                </span>
-              </span>
-              <span className="flex flex-col items-center text-3xl">
-                <span className="text-xs uppercase text-gray-500">
-                  Diastolic
-                </span>
-                {bloodPressureReading.diastolic.toString()}
-                <span className="flex items-center gap-2 text-xs text-gray-500">
-                  <GiNestedHearts /> mmHg
-                </span>
-              </span>
-              <span className="flex flex-col items-center text-3xl">
-                <span className="text-xs uppercase text-gray-500">Pulse</span>
-                {bloodPressureReading.pulse?.toString() ?? "N/A"}
-                <span className="flex items-center gap-2 text-xs text-gray-500">
-                  <BsHeartPulseFill /> BPM
-                </span>
-              </span>
-              <span className="flex flex-col items-center text-3xl">
-                <span className="text-xs uppercase text-gray-500">
-                  Category
-                </span>
-                {determineBloodPressureCategory(bloodPressureReading.category)}
-              </span>
+            className="my-4 text-center text-2xl"
+            key={timelineEvent.date.getTime()}>
+            {timelineEvent.date.toISOString().substring(0, 10)}
+            <div className="flex flex-col">
+              {timelineEvent.entries.map((entry) => {
+                if (entry.type === "WeighIn") {
+                  return (
+                    <WeighInCard
+                      key={entry.event.id}
+                      weighIn={entry.event as WeighIn}
+                      goalWeight={goalWeight}
+                    />
+                  );
+                } else if (entry.type === "BloodPressureReading") {
+                  return (
+                    <BloodPressureReadingCard
+                      key={entry.event.id}
+                      bloodPressureReading={entry.event as BloodPressureReading}
+                    />
+                  );
+                } else {
+                  <span>Uhoh</span>;
+                }
+              })}
             </div>
           </div>
         ))}
