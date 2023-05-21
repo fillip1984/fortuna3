@@ -3,66 +3,12 @@
 import { BloodPressureCategory, BloodPressureReading } from "@prisma/client";
 import Link from "next/link";
 import { MouseEvent } from "react";
-import { BsCalendarEvent, BsHeartPulseFill } from "react-icons/bs";
+import {
+  BsCalendarEvent,
+  BsFillCircleFill,
+  BsHeartPulseFill,
+} from "react-icons/bs";
 import { GiHearts, GiNestedHearts } from "react-icons/gi";
-
-const determineBloodPressureCategory = (
-  bloodPressureCategory: BloodPressureCategory
-) => {
-  const openNewWindow = (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    window.open(
-      "https://www.heart.org/en/health-topics/high-blood-pressure/understanding-blood-pressure-readings",
-      "_blank"
-    );
-  };
-  if (bloodPressureCategory === "NORMAL") {
-    return (
-      <button
-        className=" border-2 border-gray-200
-      ">
-        <div className="my-1 h-6 w-6 rounded-full bg-green-600"></div>
-        <span className="text-xs text-green-600">Normal</span>
-      </button>
-    );
-  } else if (bloodPressureCategory === "ELEVATED") {
-    return (
-      <>
-        <div className="my-1 h-6 w-6 rounded-full bg-yellow-300"></div>
-        <span className="text-xs text-yellow-300">Elevated</span>
-      </>
-    );
-  } else if (bloodPressureCategory === "HYPERTENSION_STAGE_1") {
-    return (
-      <>
-        <div className="my-1 h-6 w-6 rounded-full bg-orange-400"></div>
-        <span className="text-xs text-orange-400">Hypertension 1</span>
-      </>
-    );
-  } else if (bloodPressureCategory === "HYPERTENSION_STAGE_2") {
-    return (
-      <button
-        onClick={openNewWindow}
-        className="flex items-center gap-2 rounded-lg border-2 border-gray-200 p-2 hover:border-gray-300">
-        <div className="my-1 h-6 w-6 rounded-full bg-orange-600"></div>
-        <span className="text-xs text-orange-600">Hypertension 2</span>
-      </button>
-    );
-  } else if (bloodPressureCategory === "HYPERTENSION_CRISIS") {
-    return (
-      <>
-        <div className="my-1 h-6 w-6 rounded-full bg-red-600"></div>
-        <span className="text-xs text-red-600">Hypertension Crisis</span>
-      </>
-    );
-  } else {
-    throw Error(
-      "Unable to determine blood pressure category for: " +
-        bloodPressureCategory
-    );
-  }
-};
 
 export default function BloodPressureReadingCard({
   bloodPressureReading,
@@ -127,9 +73,70 @@ export default function BloodPressureReadingCard({
         </span>
       </div>
       <div className="flex items-center justify-center gap-2 bg-gray-100 p-2 text-3xl">
-        {/* <span className="text-xs uppercase text-gray-500">Category</span> */}
-        {determineBloodPressureCategory(bloodPressureReading.category)}
+        <BloodPressureCategoryButton
+          bloodPressureCategory={bloodPressureReading.category}
+        />
       </div>
     </Link>
   );
 }
+
+const BloodPressureCategoryButton = ({
+  bloodPressureCategory,
+}: {
+  bloodPressureCategory: BloodPressureCategory;
+}) => {
+  const openNewWindow = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(
+      "https://www.heart.org/en/health-topics/high-blood-pressure/understanding-blood-pressure-readings",
+      "_blank"
+    );
+  };
+
+  const colorSelector = () => {
+    switch (bloodPressureCategory) {
+      case "LOW":
+        return "text-sky-600";
+      case "NORMAL":
+        return "text-green-600";
+      case "ELEVATED":
+        return "text-yellow-300";
+      case "HYPERTENSION_STAGE_1":
+        return "text-orange-400";
+      case "HYPERTENSION_STAGE_2":
+        return "text-orange-600";
+      case "HYPERTENSION_CRISIS":
+        return "text-red-600";
+    }
+  };
+
+  const translateCategory = () => {
+    switch (bloodPressureCategory) {
+      case "LOW":
+        return "Low";
+      case "NORMAL":
+        return "Normal";
+      case "ELEVATED":
+        return "Elevated";
+      case "HYPERTENSION_STAGE_1":
+        return "Hypertension Stage 1";
+      case "HYPERTENSION_STAGE_2":
+        return "Hypertension Stage 2";
+      case "HYPERTENSION_CRISIS":
+        return "Hypertension Crisis";
+    }
+  };
+
+  return (
+    <button
+      onClick={openNewWindow}
+      className="flex items-center gap-2 rounded-lg border-2 border-gray-200 p-2 hover:border-gray-300">
+      <BsFillCircleFill className={`${colorSelector()} text-sm`} />
+      <span className={`${colorSelector()} text-xs`}>
+        {translateCategory()}
+      </span>
+    </button>
+  );
+};
