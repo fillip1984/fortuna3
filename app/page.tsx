@@ -68,46 +68,36 @@ const determineBloodPressureCategory = (
   if (bloodPressureCategory === "NORMAL") {
     return (
       <>
-        <span className="text-xl text-green-600">Normal</span>
-        <span className="flex items-center gap-2 text-xs text-gray-500">
-          <div className="h-4 w-4 rounded-full bg-green-600"></div>
-        </span>
+        <div className="my-1 h-6 w-6 rounded-full bg-green-600"></div>
+        <span className="text-xs text-green-600">Normal</span>
       </>
     );
   } else if (bloodPressureCategory === "ELEVATED") {
     return (
       <>
-        <span className="text-xl text-yellow-300">Elevated</span>
-        <span className="flex items-center gap-2 text-xs text-gray-500">
-          <div className="h-4 w-4 rounded-full bg-yellow-300"></div>
-        </span>
+        <div className="my-1 h-6 w-6 rounded-full bg-yellow-300"></div>
+        <span className="text-xs text-yellow-300">Elevated</span>
       </>
     );
   } else if (bloodPressureCategory === "HYPERTENSION_STAGE_1") {
     return (
       <>
-        <span className="text-xl text-orange-400">Hypertension Stage 1</span>
-        <span className="flex items-center gap-2 text-xs text-gray-500">
-          <div className="h-4 w-4 rounded-full bg-orange-400"></div>
-        </span>
+        <div className="my-1 h-6 w-6 rounded-full bg-orange-400"></div>
+        <span className="text-xs text-orange-400">Hypertension 1</span>
       </>
     );
   } else if (bloodPressureCategory === "HYPERTENSION_STAGE_2") {
     return (
       <>
-        <span className="text-xl text-orange-600">Hypertension Stage 2</span>
-        <span className="flex items-center gap-2 text-xs text-gray-500">
-          <div className="h-4 w-4 rounded-full bg-orange-600"></div>
-        </span>
+        <div className="my-1 h-6 w-6 rounded-full bg-orange-600"></div>
+        <span className="text-xs text-orange-600">Hypertension 2</span>
       </>
     );
   } else if (bloodPressureCategory === "HYPERTENSION_CRISIS") {
     return (
       <>
-        <span className="text-xl text-red-600">Hypertension Crisis</span>
-        <span className="flex items-center gap-2 text-xs text-gray-500">
-          <div className="h-4 w-4 rounded-full bg-red-600"></div>
-        </span>
+        <div className="my-1 h-6 w-6 rounded-full bg-red-600"></div>
+        <span className="text-xs text-red-600">Hypertension Crisis</span>
       </>
     );
   } else {
