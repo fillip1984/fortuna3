@@ -13,37 +13,25 @@ export async function POST(request: Request) {
 
   let category: BloodPressureCategory;
   if (
-    bloodPressureReading.systolic < 90 &&
-    bloodPressureReading.diastolic < 60
-  ) {
-    category = "LOW";
-  } else if (
-    bloodPressureReading.systolic < 120 &&
-    bloodPressureReading.diastolic < 80
-  ) {
-    category = "NORMAL";
-  } else if (
-    bloodPressureReading.systolic < 130 &&
-    bloodPressureReading.diastolic < 80
-  ) {
-    category = "ELEVATED";
-  } else if (
-    bloodPressureReading.systolic < 140 &&
-    bloodPressureReading.diastolic < 90
-  ) {
-    category = "HYPERTENSION_STAGE_1";
-  } else if (
-    bloodPressureReading.systolic < 180 &&
-    bloodPressureReading.diastolic < 120
-  ) {
-    category = "HYPERTENSION_STAGE_2";
-  } else if (
-    bloodPressureReading.systolic >= 180 ||
-    bloodPressureReading.diastolic >= 120
+    bloodPressureReading.systolic > 180 ||
+    bloodPressureReading.diastolic > 120
   ) {
     category = "HYPERTENSION_CRISIS";
+  } else if (
+    bloodPressureReading.systolic >= 140 ||
+    bloodPressureReading.diastolic >= 90
+  ) {
+    category = "HYPERTENSION_STAGE_2";
+  } else if (bloodPressureReading.systolic >= 130) {
+    category = "HYPERTENSION_STAGE_1";
+  } else if (bloodPressureReading.diastolic >= 80) {
+    category = "HYPERTENSION_STAGE_1";
+  } else if (bloodPressureReading.systolic >= 120) {
+    category = "ELEVATED";
+  } else if (bloodPressureReading.systolic >= 90) {
+    category = "NORMAL";
   } else {
-    throw Error("Unable to determine blood pressure category");
+    category = "LOW";
   }
 
   //calculate trends

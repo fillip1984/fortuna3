@@ -1,17 +1,30 @@
+"use client";
+
 import { BloodPressureCategory, BloodPressureReading } from "@prisma/client";
 import Link from "next/link";
+import { MouseEvent } from "react";
 import { BsCalendarEvent, BsHeartPulseFill } from "react-icons/bs";
 import { GiHearts, GiNestedHearts } from "react-icons/gi";
 
 const determineBloodPressureCategory = (
   bloodPressureCategory: BloodPressureCategory
 ) => {
+  const openNewWindow = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(
+      "https://www.heart.org/en/health-topics/high-blood-pressure/understanding-blood-pressure-readings",
+      "_blank"
+    );
+  };
   if (bloodPressureCategory === "NORMAL") {
     return (
-      <>
+      <button
+        className=" border-2 border-gray-200
+      ">
         <div className="my-1 h-6 w-6 rounded-full bg-green-600"></div>
         <span className="text-xs text-green-600">Normal</span>
-      </>
+      </button>
     );
   } else if (bloodPressureCategory === "ELEVATED") {
     return (
@@ -29,10 +42,12 @@ const determineBloodPressureCategory = (
     );
   } else if (bloodPressureCategory === "HYPERTENSION_STAGE_2") {
     return (
-      <>
+      <button
+        onClick={openNewWindow}
+        className="flex items-center gap-2 rounded-lg border-2 border-gray-200 p-2 hover:border-gray-300">
         <div className="my-1 h-6 w-6 rounded-full bg-orange-600"></div>
         <span className="text-xs text-orange-600">Hypertension 2</span>
-      </>
+      </button>
     );
   } else if (bloodPressureCategory === "HYPERTENSION_CRISIS") {
     return (
@@ -110,10 +125,10 @@ export default function BloodPressureReadingCard({
             <BsHeartPulseFill /> BPM
           </span>
         </span>
-        <span className="flex flex-col items-center text-3xl">
-          <span className="text-xs uppercase text-gray-500">Category</span>
-          {determineBloodPressureCategory(bloodPressureReading.category)}
-        </span>
+      </div>
+      <div className="flex items-center justify-center gap-2 bg-gray-100 p-2 text-3xl">
+        {/* <span className="text-xs uppercase text-gray-500">Category</span> */}
+        {determineBloodPressureCategory(bloodPressureReading.category)}
       </div>
     </Link>
   );
