@@ -124,7 +124,7 @@ export default async function Home() {
 
   return (
     <>
-      <h3 className="my-2 text-center">ab initio</h3>
+      <h3 className="my-2 text-center">fortis fortuna adiuvat</h3>
       <div className="flex flex-col">
         {timeline.map((timelineEvent) => (
           <div

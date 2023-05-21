@@ -11,10 +11,15 @@ type WeighInDateDiffed = {
 
 export async function POST(request: Request) {
   const weighIn: WeighIn = await request.json();
-  // WHAT!!!
+  // TODO: WHAT!!!
   console.log("weight", typeof weighIn.weight);
   weighIn.weight = new Decimal(weighIn.weight);
   console.log("weight", typeof weighIn.weight);
+
+  // TODO: WHAT! https://itsjavascript.com/javascript-typeerror-toisostring-is-not-a-function
+  console.log("date type is", typeof weighIn.date);
+  weighIn.date = new Date(weighIn.date);
+  console.log("date type is", typeof weighIn.date);
 
   const firstWeighIn = await getFirstWeighIn();
 
@@ -88,11 +93,6 @@ export async function GET() {
 }
 
 const getPreviousWeighIn = async (date: Date) => {
-  // WHAT! https://itsjavascript.com/javascript-typeerror-toisostring-is-not-a-function
-  console.log("date type is", typeof date);
-  date = new Date(date);
-  console.log("date type is", typeof date);
-
   const allWeighIns = await prisma.weighIn.findMany({
     orderBy: {
       date: "desc",

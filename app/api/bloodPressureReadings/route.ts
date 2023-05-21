@@ -6,10 +6,10 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const bloodPressureReading: BloodPressureReading = await request.json();
 
-  // WHAT!!!
-  // console.log("weight", typeof weighIn.weight);
-  // weighIn.weight = new Decimal(weighIn.weight);
-  // console.log("weight", typeof weighIn.weight);
+  // TODO: WHAT! https://itsjavascript.com/javascript-typeerror-toisostring-is-not-a-function
+  console.log("date type is", typeof bloodPressureReading.date);
+  bloodPressureReading.date = new Date(bloodPressureReading.date);
+  console.log("date type is", typeof bloodPressureReading.date);
 
   let category: BloodPressureCategory;
   if (
@@ -114,11 +114,6 @@ type DateDiffed = {
   event: BloodPressureReading;
 };
 const getPreviousReading = async (date: Date) => {
-  // WHAT! https://itsjavascript.com/javascript-typeerror-toisostring-is-not-a-function
-  console.log("date type is", typeof date);
-  date = new Date(date);
-  console.log("date type is", typeof date);
-
   const allReadings = await prisma.bloodPressureReading.findMany({
     orderBy: {
       date: "desc",
