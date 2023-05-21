@@ -5,9 +5,73 @@ import { IoScaleOutline } from "react-icons/io5";
 import { MdTrendingDown, MdTrendingFlat, MdTrendingUp } from "react-icons/md";
 import { GiHearts, GiNestedHearts } from "react-icons/gi";
 import { BsHeartPulseFill } from "react-icons/bs";
-import { BloodPressureCategory } from "@prisma/client";
+import {
+  BloodPressureCategory,
+  BloodPressureReading,
+  WeighIn,
+} from "@prisma/client";
 
 export const dynamic = "force-dynamic";
+
+type TimelineEntry = {
+  date: Date;
+  entries: Array<
+    | (Partial<WeighIn> & { date: Date }[])
+    | (Partial<BloodPressureReading> & { date: Date }[])
+  >;
+};
+
+async function chronoEntries(
+  weighIns: Partial<WeighIn> & { date: Date }[],
+  bloodPressureReadings: Partial<BloodPressureReading> & { date: Date }[]
+) {
+  console.log("weighIns", weighIns.length);
+  console.log("bloodPressureReadings", bloodPressureReadings.length);
+
+  // fold in the cheese
+  let timeline: TimelineEntry[];
+  let uniqueDatesAsNumbers = new Set<number>();
+  if (weighIns) {
+    weighIns
+      .map((weighIn) => weighIn.date)
+      .forEach((date) => uniqueDatesAsNumbers.add(date.getTime()));
+  }
+
+  if (bloodPressureReadings) {
+    bloodPressureReadings
+      .map((bloodPressureReadings) => bloodPressureReadings.date)
+      .forEach((date) => uniqueDatesAsNumbers.add(date.getTime()));
+  }
+
+  let uniqueDates: Date[] = [];
+  uniqueDatesAsNumbers.forEach((value) => {
+    uniqueDates.push(new Date(value));
+  });
+
+  console.log("unique dates:", uniqueDates);
+  let sortedUniqueDates = uniqueDates.sort(function (a: Date, b: Date) {
+    return b.getTime() - a.getTime();
+  });
+  console.log("sorted unique dates:", sortedUniqueDates);
+  sortedUniqueDates.forEach((uniqueDate) => {
+    let timelineEntry: TimelineEntry = {
+      date: uniqueDate,
+      entries: [],
+    };
+    let weighInsThatMatch: Partial<WeighIn> & { date: Date }[] =
+      weighIns.filter((weighIn) => weighIn.date !== timelineEntry.date);
+    timelineEntry.entries.push(weighInsThatMatch);
+
+    let bprThatMatch: Partial<BloodPressureReading> & { date: Date }[] =
+      bloodPressureReadings.filter(
+        (weighIn) => bloodPressureReadings.date !== timelineEntry.date
+      );
+    timelineEntry.entries.push(bprThatMatch);
+    console.log(timelineEntry);
+
+    timeline?.push(timelineEntry);
+  });
+}
 
 async function getWeighIns() {
   const weighIns = await prisma.weighIn.findMany({
@@ -114,6 +178,8 @@ export default async function Home() {
   const goalWeight = goal?.weight.toNumber();
 
   const bloodPressureReadings = await getBloodPressureReadings();
+
+  const timeline = await chronoEntries(weighIns, bloodPressureReadings);
 
   return (
     <>
