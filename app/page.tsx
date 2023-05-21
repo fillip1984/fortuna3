@@ -130,7 +130,9 @@ export default async function Home() {
           <div
             className="my-4 text-center text-2xl"
             key={timelineEvent.date.getTime()}>
-            {timelineEvent.date.toISOString().substring(0, 10)}
+            <div className="sticky top-0 -mx-4 bg-slate-200 p-4">
+              <h3>{timelineEvent.date.toISOString().substring(0, 10)}</h3>
+            </div>
             <div className="flex flex-col">
               {timelineEvent.entries.map((entry) => {
                 if (entry.type === "WeighIn") {
@@ -149,12 +151,21 @@ export default async function Home() {
                     />
                   );
                 } else {
-                  <span>Uhoh</span>;
+                  throw Error("Unknown event");
                 }
               })}
             </div>
           </div>
         ))}
+        {/* TODO */}
+        {/* <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={() => window.scrollTo(0, 0)}
+            className="mt-[800px] flex h-24 w-24 items-center justify-center rounded-full bg-slate-400 text-2xl text-white">
+            Top
+          </button>
+        </div> */}
       </div>
     </>
   );

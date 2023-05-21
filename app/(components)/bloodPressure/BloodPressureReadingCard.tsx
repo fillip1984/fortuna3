@@ -56,7 +56,7 @@ export default function BloodPressureReadingCard({
   return (
     <div
       key={bloodPressureReading.id}
-      className="flex flex-col rounded-lg border-2">
+      className="my-2 flex flex-col rounded-lg border-2">
       <div className="flex items-center justify-center gap-2 bg-gray-100 p-1">
         <BsCalendarEvent />
         {bloodPressureReading.date.toISOString().substring(0, 10)}

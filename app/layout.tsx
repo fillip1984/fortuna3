@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main className="w-screen p-4 pb-24">
+        <main className="mb-[500px] w-screen p-4">
           {children}
           <BottomNav />
         </main>
